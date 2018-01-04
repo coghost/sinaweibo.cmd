@@ -1,3 +1,13 @@
+# project
+.venv
+.idea
+build
+dist
+SinaWeibo_CMD.egg-info
+config/*.cnf
+config/*.txt
+docs/*.xmind
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
