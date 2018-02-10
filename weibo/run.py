@@ -29,76 +29,43 @@ from weibo import weibo_api
 
 
 @click.command()
-@click.option('--big_head', '-big',
-              is_flag=True,
-              help=click_hint.format('显示原始大图', ' -big'))
-@click.option('--img_cache_dir', '-cache',
-              help=click_hint.format('终端显示照片缓存目录', '-cache <dir>'))
-@click.option('--img_height', '-h',
-              type=int,
-              help=click_hint.format('iterm2 终端显示照片占用的行数', '-h <num>'))
-@click.option('--init_photos', '-i',
-              is_flag=True,
-              help=click_hint.format('初始化账号专辑照片信息, 否则只更新', ' -i'))
+@click.option('--uid', '-id',
+              help=click_hint.format('依据uid获取账号信息/无则为登陆账号信息', '-id <uid>'))
 @click.option('--login', '-lg',
               is_flag=True,
-              help=click_hint.format('手动登陆', ' -lg'))
-@click.option('--mlogin', '-mlg',
+              help=click_hint.format('手动输入账号密码登陆', ' -lg'))
+@click.option('--auto_login', '-alg',
               is_flag=True,
-              help=click_hint.format('手机端登陆', ' -mlg'))
+              help=click_hint.format('使用配置自动登陆', ' -alg'))
 @click.option('--log_level', '-log',
               type=int,
               help=click_hint.format(
                   '终端显示log级别 1-debug/2-info/3-warn/4-error', '-log <num>'))
-@click.option('--skip_cache', '-sc',
-              is_flag=True,
-              help=click_hint.format('不使用照片缓存', ' -sc'))
-@click.option('--name', '-n',
-              help=click_hint.format('从本地mongo查询', '-n <name>'))
-@click.option('--search', '-s',
-              help=click_hint.format('从新浪直接查询', '-s <name>'))
 @click.option('--test', '-t',
               is_flag=True,
               help=click_hint.format('测试cookie是否可用', ' -t'))
-@click.option('--uid', '-id',
-              help=click_hint.format('依据uid获取账号信息', '-id <uid>'))
-@click.option('--update_personal_info', '-update',
-              is_flag=True,
-              help=click_hint.format('更新个人信息', ' -update'))
-def run(big_head,
-        img_cache_dir, img_height, init_photos, login, log_level, mlogin, name,
-        search, skip_cache, test,
-        uid, update_personal_info, ):
-    img_height = img_height or cfg.get('weibo.img_height', 3)
-    log_level = log_level or cfg.get('weibo.log_level', 1)
-    img_cache_dir = img_cache_dir or cfg.get('weibo.img_cache_dir', '/tmp/weibo')
-
-    big_head = big_head or cfg.get('weibo.big_head', False)
-    skip_cache = skip_cache or cfg.get('weibo.skip_cache', False)
-
+def run(auto_login,
+        login, log_level,
+        test, uid, ):
+    log_level = log_level or cfg.get('weibo.log_level', 2)
     logzero.loglevel(log_level * 10)
 
-    weibo_api.WeiboBase(big_head=big_head,
-                        img_cache_dir=img_cache_dir,
-                        img_height=img_height,
-                        use_cache=not skip_cache)
+    weibo_api.WeiboBase()
 
     myself = weibo_api.Myself(
-        login_ok=not login and not mlogin,
+        login_ok=not login and not auto_login,
         uid_in=uid,
+        log_level=log_level,
     )
 
-    if mlogin:
-        myself.mobile_login()
-        base.force_quit()
-
-    if login:
+    if login or auto_login:
         try:
-            myself.login()
+            myself.login(auto_login)
         except IndexError as _:
             lg = weibo_api.Login()
             lg.do_login()
             print(_)
+        myself.mobile_login(auto_login)
         base.force_quit()
 
     if test:

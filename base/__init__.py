@@ -16,6 +16,8 @@ import sys
 from functools import wraps
 import random
 import base64
+from pprint import pprint
+from urllib.parse import urljoin, urlencode, quote, unquote_plus, parse_qsl
 
 app_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(app_root)
@@ -27,7 +29,7 @@ import logzero
 from logzero import logger as log
 
 from bs4 import BeautifulSoup
-from izen import helper
+from izen import helper, dec
 from clint import textui
 from config import Conf, LFormatter
 
@@ -35,6 +37,9 @@ base_pth = os.path.join(os.path.expanduser('~'), '.weibocli')
 app_pth = {
     'cfg': os.path.join(base_pth, 'config/weibo.cfg'),
     'log': os.path.join(base_pth, 'logs/weibo.log'),
+    'personal': os.path.join(base_pth, 'dat/personal.txt'),
+    'cookie': os.path.join(base_pth, 'dat/cookie.txt'),
+    'mobile_cookie': os.path.join(base_pth, 'dat/mobile_cookie.txt'),
 }
 
 cfg = Conf(app_pth.get('cfg')).cfg
@@ -53,7 +58,7 @@ if cfg.get('log.enabled', False):
 bagua = '🍺🍻♨️️😈☠'
 formatter = LFormatter(bagua)
 logzero.formatter(formatter)
-click_hint = '{}\ne.g.: <cmd> {}'
+click_hint = '{}\ne.g. <cmd> {}'
 
 ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
@@ -75,6 +80,53 @@ class Colorful(object):
 
     def error(self, msg):
         self.p('red', msg)
+
+
+class Player(object):
+    def __init__(self, url):
+        self.url = url
+        self.init()
+
+    @dec.threads(True)
+    def init(self, use_cache=True, show_log=False):
+        cmd = '/usr/local/bin/mplayer -vo corevideo -slave'
+        if use_cache:
+            cmd += ' -cache 8192'
+        if not show_log:
+            cmd += ' -really-quiet'
+        cmd += ' "{}" &'.format(self.url)
+        os.popen(cmd).read()
+
+
+def pprt(show=False):
+    def dec_(fn):
+        @wraps(fn)
+        def wrapper(*args, **kwargs):
+            result = None
+            if show:
+                try:
+                    result = fn(*args, **kwargs)
+                except Exception as e:
+                    pprint(e)
+                finally:
+                    _m = 64
+                    _fn = fn.__code__.co_name
+                    _h = (_m - len(_fn)) // 2 - 2
+                    t = '-'
+                    b = '-'
+                    Colorful(0, ' ').debug('{} [{}({}){}] {}'.format(t * _h,
+                                                                     fn.__code__.co_filename.split('/')[-1],
+                                                                     fn.__code__.co_firstlineno,
+                                                                     fn.__code__.co_name, t * _h))
+                    pprint(result)
+                    # print(b * _m)
+                    return result
+            else:
+                return fn(*args, **kwargs)
+
+        return wrapper
+
+    return dec_
 
 
 def update_cfg(key, val):
@@ -118,6 +170,13 @@ def bs4markup(params=None):
         return wrapper
 
     return dec
+
+
+def bs4txt(markup_in, parser='lxml', enc='utf-8'):
+    markup = BeautifulSoup(
+        markup_in, parser
+    ).text
+    return markup
 
 
 def save_img(dat, pth):
@@ -218,3 +277,19 @@ def multi_line_input(hint='', no_prefix=False):
         lines += line.split('\n')
     lines = '\n'.join(lines)
     return lines
+
+
+def split_url_param(url=''):
+    if url.find('?') == -1:
+        return url, {}
+    url, p_ = url.split('?')
+    params = dict(parse_qsl(unquote_plus(p_)))
+    return url, params
+
+
+def cn_len(dat):
+    d = [
+        x for x in dat
+        if ord(x) > 127
+    ]
+    return len(d)

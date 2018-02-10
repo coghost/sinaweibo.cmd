@@ -25,6 +25,8 @@ class Conf(object):
     def init_type(self):
         """通过手动方式, 指定类型, 如果配置文件有变动, 需要手动在这里添加"""
         _cfg = self.cfg
+        _cfg.init('sys.catch_error', False, bool)  # 是否捕获错误
+
         _cfg.init('log.enabled', False, bool)  # 是否记录到文件
         _cfg.init('log.file_pth', '/tmp/crawl.log', str)
         _cfg.init('log.file_backups', 3, int)
@@ -48,6 +50,8 @@ class Conf(object):
         _cfg.init('weibo.username', '', str)
         _cfg.init('weibo.password', '', str)
         _cfg.init('weibo.nickname', '', str)
+        _cfg.init('weibo.uid', '6069778559', str)
+        _cfg.init('weibo.domain', '100505', str)
         _cfg.init('weibo.big_head', False, bool)
         _cfg.init('weibo.img_height', 6, int)
         _cfg.init('weibo.log_level', 2, int)
