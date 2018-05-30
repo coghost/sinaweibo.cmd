@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-
 __author__ = 'lihe <imanux@sina.com>'
 __date__ = '26/10/2017 9:56 AM'
 __description__ = '''
@@ -293,3 +291,86 @@ def cn_len(dat):
         if ord(x) > 127
     ]
     return len(d)
+
+
+import traceback
+
+
+def catch(do, my_exception=TypeError, hints=''):
+    """
+    防止程序出现 exception后异常退出,
+    但是这里的异常捕获机制仅仅是为了防止程序退出, 无法做相应处理
+    可以支持有参数或者无参数模式
+
+    -  ``do == True`` , 则启用捕获异常
+    -  无参数也启用 try-catch
+
+    .. code:: python
+
+            @catch
+            def fnc():
+                pass
+
+    -  在有可能出错的函数前添加, 不要在最外层添加,
+    -  这个catch 会捕获从该函数开始的所有异常, 会隐藏下一级函数调用的错误.
+    -  但是如果在内层的函数也有捕获方法, 则都会catch到异常.
+
+    :param do:
+    :type do:
+    :param my_exception:
+    :type my_exception:
+    :param hints:
+    :type hints:
+    :return:
+    :rtype:
+    """
+    if not hasattr(do, '__call__'):
+        def dec(fn):
+            @wraps(fn)
+            def wrapper_(*args, **kwargs):
+                if not do:
+                    return fn(*args, **kwargs)
+
+                try:
+                    return fn(*args, **kwargs)
+                except my_exception as e:
+                    # log.error("{}({})>{}: has err({})".format(
+                    #     fn.__code__.co_filename.split('/')[-1],
+                    #     fn.__code__.co_firstlineno,
+                    #     fn.__name__, e))
+                    traceback.print_exc()
+                    ty, tv, tb = sys.exc_info()
+                    print(ty, tv)
+                    print(''.join(traceback.format_tb(tb)))
+                    # print(traceback.format_tb(tb))
+                    if hints:
+                        print(hints)
+
+            return wrapper_
+
+        return dec
+
+    @wraps(do)
+    def wrapper(*args, **kwargs):
+        try:
+            return do(*args, **kwargs)
+        except Exception as e:
+            log.error("{}({})>{}: has err({})".format(
+                do.__code__.co_filename.split('/')[-1],
+                do.__code__.co_firstlineno,
+                do.__name__, e
+            ))
+            traceback.print_exc()
+            if hints:
+                print(hints)
+
+    return wrapper
+
+
+@catch(True, Exception)
+def upc():
+    update_cfg('sys.abc', [1, 2, 3])
+
+
+if __name__ == '__main__':
+    upc()

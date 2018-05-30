@@ -181,6 +181,8 @@ DEPTH = 0
 
 
 def gender(g):
+    if not g:
+        g = 'm'
     return ico['gender'][g]
 
 
@@ -376,6 +378,8 @@ class Action(WeiboBase):
     def page_handler(self, key_in, handler):
         page_dat = getattr(self.wb_user, key_in)
         page_req = getattr(self.wb_user, 'get_' + key_in)
+        # print(page_dat)
+        print(self.wb_user.ctrl)
 
         idx = self.wb_user.ctrl[key_in]['page']
         ch = handler(page_dat[idx])
@@ -446,7 +450,7 @@ class Action(WeiboBase):
             )
             txt = '{}[{}]\t{:{}}\t'.format(
                 name_,
-                gender(dat.get('gender')),
+                gender(dat.get('gender', '')),
                 st_info,
                 48 - base.cn_len(st_info)
             )

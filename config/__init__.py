@@ -26,6 +26,7 @@ class Conf(object):
         """通过手动方式, 指定类型, 如果配置文件有变动, 需要手动在这里添加"""
         _cfg = self.cfg
         _cfg.init('sys.catch_error', False, bool)  # 是否捕获错误
+        _cfg.init('sys.abc', [], list)
 
         _cfg.init('log.enabled', False, bool)  # 是否记录到文件
         _cfg.init('log.file_pth', '/tmp/crawl.log', str)

@@ -192,7 +192,11 @@ class WeiboApi(object):
     def get_it(self, url='', params=None):
         url = url or API_URL['index']
 
-        res = self.client.get(url, params=params, headers=HEADERS['mobile_json_headers'])
+        try:
+            res = self.client.get(url, params=params, headers=HEADERS['mobile_json_headers'])
+        except requests.ConnectionError as _:
+            log.error('Cannot connect to {}'.format(url))
+            base.force_quit()
 
         if self.enable_show_url:
             print(res.url)
@@ -215,10 +219,17 @@ class WeiboApi(object):
             log.error('无法获取账号页面信息')
             return {}
 
-        self.tabs_info = {
-            x['tab_type']: x
-            for x in tabs['tabs']
-        }
+        _tabs = tabs['tabs']
+        if isinstance(_tabs, list):
+            self.tabs_info = {
+                x['tab_type']: x
+                for x in _tabs
+            }
+        elif isinstance(_tabs, dict):
+            self.tabs_info = {
+                x['tab_type']: x
+                for k, x in _tabs.items()
+            }
 
     def get_enter_point(self):
         params = {
