@@ -65,13 +65,13 @@ def run(auto_login,
             lg = weibo_api.Login()
             lg.do_login()
             print(_)
-        myself.mobile_login(auto_login)
-        base.force_quit()
+        # myself.mobile_login(auto_login)
+        base.force_quit(0)
 
     if test:
         myself.is_mobile_login_ok()
         myself.is_cookie_ok()
-        base.force_quit()
+        base.force_quit(0)
 
     if not myself.sess.cookies:
         log.warn('no cookie found!, login `-lg` first!!!')

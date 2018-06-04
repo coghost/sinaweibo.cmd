@@ -428,7 +428,7 @@ class Login(WeiboBase):
             # self.uid = dat.get('uid')
             log.info('[MOBILE-LOGIN:SUCCESS] ({})'.format(dat.get('uid')))
             self.dump_cookies(self.mobile_sess.cookies, base.app_pth['mobile_cookie'])
-            return dat
+            return username, password
         else:
             log.error('[FAILED] ({})'.format(res.json()))
 
@@ -437,6 +437,10 @@ class Login(WeiboBase):
         if auto_login:
             username = cfg.get('weibo.username', '')
             password = cfg.get('weibo.password', '')
+        else:
+            dml = self.do_mobile_login(username, password)
+            if dml:
+                username, password = dml
         uuid_ = self.do_login(username, password)
 
         url = M['profile'].format(uuid_)

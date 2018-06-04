@@ -53,7 +53,12 @@ API_URL = {
     'blog_deal': 'https://m.weibo.cn/mblogDeal/',
     'comments': 'https://m.weibo.cn/api/comments/',
     'like': 'https://m.weibo.cn/api/attitudes/',
+    'feed_friends': 'https://m.weibo.cn/feed/friends?version=v4',
     # 'repost': 'https://m.weibo.cn/api/statuses/repostTimeline',
+}
+
+mblogDeal = {
+    'delete': 'delMyMblog'
 }
 
 
@@ -205,7 +210,13 @@ class WeiboApi(object):
             return self.is_res_success(res.json())
 
     def get_unread(self):
-        return self.get_it(API_URL['unread'], '').get('data', {})
+        # dat = self.get_it(API_URL['unread'], '').get('data', {})
+        dat = self.get_it(API_URL['unread'], '')  # .get('data', {})
+        if self.enable_show_url:
+            log.debug('unread {}'.format(dat))
+        if dat.get('data'):
+            return dat.get('data')
+        return dat
 
     def analy_base(self):
         scheme_url = self.base_info.get('follow_scheme')
@@ -311,6 +322,8 @@ class WeiboApi(object):
             return
 
         res = self.client.post(url, data=form, headers=HEADERS['mobile_post_headers'])
+        if self.enable_show_url:
+            log.debug('POST {} with {}'.format(url, form))
         dat = res.json()
 
         if dat.get('ok') == 1:
@@ -417,8 +430,8 @@ class WeiboApi(object):
         :rtype:
         """
         cnt = ''
-        cnt += base.multi_line_input('说点什么')
-        cnt += base.multi_line_input('粘贴链接')
+        cnt += base.multi_line_input('共两步:1. 描述视频一下')
+        cnt += base.multi_line_input('2. 粘贴链接')
         self.pub_blog(cnt)
 
     def delete(self, feed):
@@ -426,7 +439,7 @@ class WeiboApi(object):
             'id': feed.get('mid'),
             'st': self.st_token
         }
-        self.post_it('删除微博', urljoin(API_URL['blog_deal'], 'delete'), form)
+        self.post_it('删除微博', urljoin(API_URL['blog_deal'], mblogDeal['delete']), form)
 
     def do_favor(self, feed=None):
         form = {
@@ -695,7 +708,8 @@ class Myself(Login, WeiboBase):
 
     def get_unread(self):
         msgs = self.api.get_unread()
-        print(msgs)
+
+        print('未读: {0[new]}, 私信: {0[sx]}'.format(msgs.get('qp')))
 
     def get_personal_info(self):
         """获取用户的信息
@@ -769,7 +783,7 @@ class Myself(Login, WeiboBase):
         if dat.get('ok') == 1:
             ctrl_['total'] = dat.get('count')
             ctrl_['page_nums'] = ctrl_['total'] // ctrl_['size']
-            print('followed: ', ctrl_)
+            # print('followed: ', ctrl_)
             self.followed[ctrl_['page']] = self.ff(dat)
         elif dat.get('ok') == 0:
             ctrl_['page'] -= step

@@ -204,14 +204,14 @@ def randint(start=0, end=100):
     return random.randint(start, end)
 
 
-def force_quit():
+def force_quit(exit_code=-1):
     """
         call os._exit(-1) to force quit program.
 
     :return:
     :rtype:
     """
-    os._exit(-1)
+    os._exit(exit_code)
 
 
 def base62_encode(orig_num, alphabet=ALPHABET):

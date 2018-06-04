@@ -379,7 +379,7 @@ class Action(WeiboBase):
         page_dat = getattr(self.wb_user, key_in)
         page_req = getattr(self.wb_user, 'get_' + key_in)
         # print(page_dat)
-        print(self.wb_user.ctrl)
+        # print(self.wb_user.ctrl)
 
         idx = self.wb_user.ctrl[key_in]['page']
         ch = handler(page_dat[idx])
@@ -392,7 +392,7 @@ class Action(WeiboBase):
             step = 1 if ch in 'nN' else -1
             page_req(step=step, abs_page=_abs_idx)
             idx = self.wb_user.ctrl[key_in]['page']
-            print('curr-page', idx, page_dat.keys(), idx in page_dat)
+            # print('curr-page', idx, page_dat.keys(), idx in page_dat)
 
             if idx in page_dat:
                 # print(page_dat[idx])
@@ -548,7 +548,8 @@ class Action(WeiboBase):
                 # txt += '{} 转发自 {}\n'.format('-' * 32, '-' * 32)
                 t = '{} 转发自 {}\n'.format('⇢ ' * 16, '⇠ ' * 16)
                 t += gen_str(dat.get('retweeted_status'))
-                t = textui.colored.blue(t)
+                # t = textui.colored.blue(t)
+                t = textui.colored.yellow(t)
                 txt += t
             return txt
 
@@ -624,7 +625,7 @@ class Action(WeiboBase):
                 dat.get('attitudes_count'),
                 dat.get('text'),
             )
-            print(txt)
+            # print(txt)
             pics = [
                 x['url']
                 for x in dat.get('pics', [])

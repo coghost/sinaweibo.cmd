@@ -8,59 +8,41 @@ title: 新浪微博命令行
 
 新浪微博命令行版本, sina.com on iterm2 with cmd line support
 
-## 功能列表
+## 1. 功能列表
 
-### 个人操作
+### 1.1 登陆
 
-- [x] 登陆
-      - [x] `web登陆`
-      - [x] `mobile登陆`
-- [x] 展示个人信息
-      - [x] 个人信息
-      - [x] 关注用户列表
-- [x] 微博操作
-      - [x] 发布微博
-      - [x] 查看微博
-- [x] 发布微博
-      - [x] 文字/图文/视频
-- [x] 查看微博
-      - [x] 详情`小图`
-      - [x] 大图
-      - [x] 视频
-      - [x] 转发
-      - [x] 评论
-      - [x] 赞/取消
-      - [x] 删除
-      - [x] 收藏/取消
-      - [ ] 置顶
-      - [ ] 加标签
-      - [ ] 好友圈可见
-      - [ ] 自己可见
+- `web登陆`
 
-### 好友操作
+- `mobile登陆`
 
-- [x] 查找
-- [x] 查看好友信息
-- [x] 关注/取关
+### 1.2 终端cli功能
 
+- [ 1 ] 个人信息
+- [ 2 ] 查找账号
+- [ 3 ] 粉丝列表
+- [ 4 ] 关注用户列表
+- [ 5 ] 我的消息
+- [ 6 ] 发布微博
+- [ 7 ] 用户微博
 
-## 分析实现
+## 2. 分析实现
 
 - 所有功能均通过`firefox`的`web`及`firefox响应设计模式模拟手机设备`实现
-- 只支持查看已关注账号信息
 
-## 操作演示
+## 3. 终端操作演示
 
-### 按键说明
+### 3.1 按键说明
 
 ```sh
 q/Q	# 退出
 b/B	# 后退一级
+n/p # next 下一页/ previous下一页
 # 其他
-1~n # 数字对应功能
+1~x # 数字对应功能
 ```
 
-### 帮助提示
+### 3.2 帮助提示
 
 ```sh
 weibocli --help
@@ -68,42 +50,79 @@ weibocli --help
 
 ![help](docs/images/help.png)
 
-### 登陆
+### 3.3 登陆
 
 ```sh
 weiboocli -lg
-weiboocli -mlg
+weiboocli -alg
 ```
+
+#### 3.3.1 手动输入登陆
 
 ![login](docs/images/login.png)
 
-### 个人信息/关注列表
+#### 3.3.2 使用配置项自动登陆
+
+![auto_login](docs/images/auto_login.png)
+
+## 4 个人操作cli
+
+### 4.1 查看个人信息
 
 ```sh
 # 无 -id 参数为查看自己的, 加上 -id 为查看id对应的用户
 weibocli
 1
+```
+
+![cmd_1](docs/images/cmd_1.png)
+
+### 4.2 查找用户
+
+```sh
 2
 ```
 
-![cmd_1-2](docs/images/cmd_1-2.png)
+![cmd_2](docs/images/cmd_2.png)
 
-### 微博列表
-
-```sh
-4
-```
-
-![cmd_4](docs/images/cmd_4.png)
-
-> 详情
-
-![cmd_4_1](docs/images/cmd_4_1.png)
-
-### 发布微博
+### 4.3 查看粉丝
 
 ```sh
 3
+n	// 下一页
+p	// 上一页
 ```
 
-![cmd_3_1](docs/images/cmd_3_1.png)
+![cmd_3-n-p](docs/images/cmd_3-n-p.png)
+
+### 4.4 查看关注用户
+
+```sh
+4
+n
+p
+```
+
+![cmd_411](docs/images/cmd_u1.png)
+
+### 4.5 查看未读消息
+
+- `to be 实现`
+
+### 4.6 发布微博
+
+```sh
+6
+```
+
+![cmd_6-1](docs/images/cmd_6-1.png)
+
+### 4.7 查看微博
+
+```sh
+7
+1
+3
+```
+
+![cmd_7_video](docs/images/cmd_7_video.png)
