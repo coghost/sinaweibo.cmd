@@ -199,6 +199,9 @@ class WeiboApi(object):
 
         try:
             res = self.client.get(url, params=params, headers=HEADERS['mobile_json_headers'])
+        except AttributeError as _:
+            log.error('No cookies found')
+            base.force_quit()
         except requests.ConnectionError as _:
             log.error('Cannot connect to {}'.format(url))
             base.force_quit()
